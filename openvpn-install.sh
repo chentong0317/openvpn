@@ -108,10 +108,36 @@ if [[ ! -e /etc/openvpn/server/server.conf ]]; then
 	fi
 	clear
 	echo 'Welcome to this OpenVPN road warrior installer!'
-	# 默认使用 0.0.0.0，不再从系统中获取 IP 地址
-    ip="0.0.0.0" # 设置默认IPv4地址为0.0.0.0
-	
-	
+	# If system has a single IPv4, it is selected automatically. Else, ask the user
+	if [[ $(ip -4 addr | grep inet | grep -vEc '127(\.[0-9]{1,3}){3}') -eq 1 ]]; then
+		ip=$(ip -4 addr | grep inet | grep -vE '127(\.[0-9]{1,3}){3}' | cut -d '/' -f 1 | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}')
+	else
+		number_of_ip=$(ip -4 addr | grep inet | grep -vEc '127(\.[0-9]{1,3}){3}')
+		echo
+		echo "Which IPv4 address should be used?"
+		ip -4 addr | grep inet | grep -vE '127(\.[0-9]{1,3}){3}' | cut -d '/' -f 1 | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | nl -s ') '
+		read -p "IPv4 address [1]: " ip_number
+		until [[ -z "$ip_number" || "$ip_number" =~ ^[0-9]+$ && "$ip_number" -le "$number_of_ip" ]]; do
+			echo "$ip_number: invalid selection."
+			read -p "IPv4 address [1]: " ip_number
+		done
+		[[ -z "$ip_number" ]] && ip_number="1"
+		ip=$(ip -4 addr | grep inet | grep -vE '127(\.[0-9]{1,3}){3}' | cut -d '/' -f 1 | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | sed -n "$ip_number"p)
+	fi
+	# If $ip is a private IP address, the server must be behind NAT
+	if echo "$ip" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
+		echo
+		echo "This server is behind NAT. What is the public IPv4 address or hostname?"
+		# Get public IP and sanitize with grep
+		get_public_ip=$(grep -m 1 -oE '^[0-9]{1,3}(\.[0-9]{1,3}){3}$' <<< "$(wget -T 10 -t 1 -4qO- "http://ip1.dynupdate.no-ip.com/" || curl -m 10 -4Ls "http://ip1.dynupdate.no-ip.com/")")
+		read -p "Public IPv4 address / hostname [$get_public_ip]: " public_ip
+		# If the checkip service is unavailable and user didn't provide input, ask again
+		until [[ -n "$get_public_ip" || -n "$public_ip" ]]; do
+			echo "Invalid input."
+			read -p "Public IPv4 address / hostname: " public_ip
+		done
+		[[ -z "$public_ip" ]] && public_ip="$get_public_ip"
+	fi
 	# If system has a single IPv6, it is selected automatically
 	if [[ $(ip -6 addr | grep -c 'inet6 [23]') -eq 1 ]]; then
 		ip6=$(ip -6 addr | grep 'inet6 [23]' | cut -d '/' -f 1 | grep -oE '([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}')
@@ -130,7 +156,6 @@ if [[ ! -e /etc/openvpn/server/server.conf ]]; then
 		[[ -z "$ip6_number" ]] && ip6_number="1"
 		ip6=$(ip -6 addr | grep 'inet6 [23]' | cut -d '/' -f 1 | grep -oE '([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}' | sed -n "$ip6_number"p)
 	fi
-	echo
 echo "Using default configuration for protocol, port, DNS, and client name."
 
 # 使用默认协议 UDP
@@ -145,7 +170,7 @@ dns="2" # 设置默认DNS为当前系统解析器
 # 使用默认客户端名称 "client"
 unsanitized_client="client" # 设置默认客户端名称为client
 
-echo
+
 echo "Configuration selected:"
 echo "IPv6: $ip6"
 echo "Protocol: $protocol"
@@ -221,7 +246,7 @@ YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
 ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 -----END DH PARAMETERS-----' > /etc/openvpn/server/dh.pem
 	# Generate server.conf
-	echo "local $ip
+	echo "local 0.0.0.0
 port $port
 proto $protocol
 dev tun
