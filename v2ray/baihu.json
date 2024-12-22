@@ -1,0 +1,32 @@
+{
+  "inbounds": [
+    {
+      "tag": "baihu.json",
+      "port": 7398,
+      "listen": "0.0.0.0",
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "d288ddd5-1ad1-4577-aa41-5bcc45b0aa3e"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "tcpSettings": {
+          "header": {
+            "type": "none"
+          }
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    }
+  ]
+}
