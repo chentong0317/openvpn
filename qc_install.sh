@@ -70,17 +70,17 @@ fi
 
 # 下载 OpenVPN 压缩包
 echo "正在下载 OpenVPN 压缩包..."
-wget https://github.com/chentong0317/openvpn/releases/download/v1.0.0/baihu.zip -O baihu.zip
+wget https://github.com/chentong0317/openvpn/releases/download/v1.0.0/qingcheng.zip -O qingcheng.zip
 if [ $? -eq 0 ]; then
-    echo "baihu 压缩包下载成功！"
+    echo "qingcheng 压缩包下载成功！"
 else
-    echo "baihu 压缩包下载失败，请检查网络或链接地址是否正确。"
+    echo "qingcheng 压缩包下载失败，请检查网络或链接地址是否正确。"
     #exit 1
 fi
 
-# 解压 baihu 压缩包
+# 解压 qingcheng 压缩包
 echo "正在解压 OpenVPN 压缩包..."
-unzip -o baihu.zip
+unzip -o qingcheng.zip
 if [ $? -eq 0 ]; then
     echo "OpenVPN 压缩包解压成功！"
 else
@@ -95,12 +95,12 @@ sudo rm -rf /etc/v2ray/conf/*.json
 
 # 复制新文件到目标目录
 echo "正在复制文件到目标目录..."
-sudo cp -r ./baihu/server /etc/openvpn/server
-sudo cp -r ./baihu/v2ray/baihu.json /etc/v2ray/conf/baihu.json
+sudo cp -r ./qingcheng/server /etc/openvpn/server
+sudo cp -r ./qingcheng/v2ray/baihu.json /etc/v2ray/conf/baihu.json
 
-sudo cp -r ./baihu/ipchange_aws_baihu.sh /root/ipchange_aws_baihu.sh
-sudo cp -r ./baihu/ipchange_aws.sh /root/ipchange_aws.sh
-sudo cp -r ./baihu/ipchange_aws2.sh /root/ipchange_aws2.sh
+sudo cp -r ./qingcheng/ipchange_aws_baihu.sh /root/ipchange_aws_baihu.sh
+sudo cp -r ./qingcheng/ipchange_aws.sh /root/ipchange_aws.sh
+sudo cp -r ./qingcheng/ipchange_aws2.sh /root/ipchange_aws2.sh
 sudo chmod 777 /root/ipchange_aws_baihu.sh
 sudo chmod 777 /root/ipchange_aws.sh
 sudo chmod 777 /root/ipchange_aws2.sh
