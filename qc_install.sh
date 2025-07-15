@@ -1,9 +1,7 @@
 #!/bin/bash
-echo $1 > "/root/aws_name.txt"
-echo $(( $1 + 200 )) > "/root/aws_name.txt"
-
 
 # 定义一个函数，用于检查软件包是否已安装
+
 check_and_install() {
     PACKAGE=$1
     if dpkg -l | grep -q "^ii  $PACKAGE "; then
@@ -37,6 +35,9 @@ update_package_list() {
         exit 1
     fi
 }
+echo $1 > "/root/aws_name_qc.txt"
+
+echo $(( $1 + 200 )) > "/root/aws_name.txt"
 
 # 更新软件包列表（带判断）
 update_package_list
@@ -75,8 +76,8 @@ wget https://github.com/chentong0317/openvpn/releases/download/v1.0.0/qingcheng.
 if [ $? -eq 0 ]; then
     echo "qingcheng 压缩包下载成功！"
 else
-    echo "baihu 压缩包下载失败，请检查网络或链接地址是否正确。"
-    #exit qingcheng
+    echo "qingcheng 压缩包下载失败，请检查网络或链接地址是否正确。"
+    #exit 1
 fi
 
 # 解压 qingcheng 压缩包
@@ -134,10 +135,9 @@ echo "已成功设置 cron 服务为开机启动！"
 #!/bin/bash
 
 # 定义定时任务内容
-CRON_JOB_1="*/2 * * * * sudo /root/ipchange_aws_baihu.sh"
-CRON_JOB_2="0 */1 * * * sudo /root/ipchange_aws.sh"
-CRON_JOB_3="*/1 * * * * sudo /root/ipchange_aws2.sh"
-
+CRON_JOB_1="0 */1 * * * sudo /root/ipchange_aws.sh"
+CRON_JOB_2="*/1 * * * * sudo /root/ipchange_aws2.sh"
+CRON_JOB_3="*/1 * * * * sudo /root/ipchange_aws_baihu.sh"
 # 检查并添加定时任务到当前用户的 Crontab
 add_cron_job () {
     local job="$1"
@@ -162,4 +162,3 @@ echo root:ct317319828 |sudo chpasswd root;
 sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config;
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config;
 sudo reboot;
-
