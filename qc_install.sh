@@ -1,6 +1,6 @@
 #!/bin/bash
 echo $1 > "/root/aws_name_qc.txt"
-echo $((\$1 + 200)) > "/root/aws_name.txt"
+echo $(($1 + 200)) > "/root/aws_name.txt"
 
 # 定义一个函数，用于检查软件包是否已安装
 check_and_install() {
